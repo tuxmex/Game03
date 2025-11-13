@@ -66,13 +66,13 @@ Es un patrón de arquitectura. Imagina una cocina de restaurante:
 Nuestro proyecto está organizado en **capas**, como un edificio:
 
 ```
-📦 com.utng.runner
+📦 mx.edu.utng.arg.runner
  ┣ 📂 data (PLANTA BAJA - Datos)
  ┃ ┣ 📜 GameState.kt
  ┃ ┗ 📜 ObstacleType.kt
  ┣ 📂 domain (PRIMER PISO - Lógica del Negocio)
  ┃ ┗ 📜 GameEngine.kt
- ┣ 📂 presentation (SEGUNDO PISO - Presentación)
+ ┣ 📂 ui (SEGUNDO PISO - Presentación)
  ┃ ┣ 📂 components
  ┃ ┃ ┣ 📜 GameScreen.kt
  ┃ ┃ ┣ 📜 PlayerCharacter.kt
@@ -94,6 +94,44 @@ Si todo está mezclado, es un caos. Si está organizado en capas, es fácil enco
 ---
 
 ## ⚙️ Configuración Inicial
+### 1. Archivo `libs.version.toml`
+```toml
+[versions]
+activityCompose = "1.11.0"
+agp = "8.12.3"
+composeBom = "2025.11.00"
+composeBomVersion = "2024.02.00"
+coreKtx = "1.17.0"
+espressoCore = "3.7.0"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+kotlin = "2.2.21"
+lifecycleRuntimeKtx = "2.9.4"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-compose-bom-v20240200 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+junit = { module = "junit:junit", version.ref = "junit" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+```
 
 ### 1. Archivo `build.gradle.kts` (Module: app)
 
@@ -101,25 +139,23 @@ Este archivo es como la lista de materiales para construir una casa.
 
 ```kotlin
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "com.utng.runner"
-    compileSdk = 34
+    namespace = "mx.edu.utng.arg.runner"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.utng.runner"
-        minSdk = 24  // Compatible con Android 7.0 y superiores
-        targetSdk = 34
+        applicationId = "mx.edu.utng.arg.runner"
+        minSdk = 24
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
 
     buildTypes {
@@ -131,60 +167,48 @@ android {
             )
         }
     }
-    
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
-    
     buildFeatures {
-        compose = true  // ¡Habilita Jetpack Compose!
-    }
-    
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+        compose = true
     }
 }
 
 dependencies {
     // Jetpack Compose - El corazón de nuestra UI
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+
     // ViewModel para Compose
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     // Testing
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
+
 ```
 
 **Explicación Detallada:**
 
 - **namespace**: Es como el nombre completo de tu app (com.utng.runner)
-- **compileSdk = 34**: La versión de Android que usaremos para compilar
+- **compileSdk = 36**: La versión de Android que usaremos para compilar
 - **minSdk = 24**: La app funcionará desde Android 7.0 en adelante
 - **buildFeatures { compose = true }**: Le decimos a Android que usaremos Jetpack Compose
 
@@ -199,17 +223,17 @@ dependencies {
 Este archivo define los tipos de obstáculos. Es como un catálogo de "malos hábitos".
 
 ```kotlin
-package com.utng.runner.data
+package mx.edu.utng.arg.runner.data
 
 /**
  * ObstacleType representa los diferentes tipos de obstáculos (malos hábitos)
  * que el estudiante debe evitar en su camino universitario.
- * 
+ *
  * ANALOGÍA: Es como una lista de tentaciones que encuentras en tu día a día:
  * - La comida chatarra en el kiosko
  * - Las fiestas con alcohol
  * - Las drogas que algunos ofrecen
- * 
+ *
  * @property emoji El emoji que representa visualmente el obstáculo
  * @property name El nombre descriptivo del obstáculo
  * @property description Una breve descripción del riesgo que representa
@@ -244,7 +268,7 @@ sealed class ObstacleType(
      * EJEMPLO: Cualquier sustancia que destruye tu salud y vida universitaria
      */
     object Drugs : ObstacleType(
-        emoji = "💊",
+        emoji = "\uD83D\uDEAC",
         name = "Drogas",
         description = "Las drogas destruyen tu vida y sueños"
     )
@@ -252,10 +276,10 @@ sealed class ObstacleType(
     companion object {
         /**
          * Función que devuelve un obstáculo aleatorio.
-         * 
+         *
          * ANALOGÍA: Es como girar una ruleta de tentaciones.
          * A veces te toca uno, a veces otro.
-         * 
+         *
          * @return Un tipo de obstáculo seleccionado aleatoriamente
          */
         fun random(): ObstacleType {
@@ -297,21 +321,21 @@ No puede haber un hijo 4 sorpresa.
 Este archivo es el "estado" del juego. Imagina que es como una foto instantánea de tu juego en cualquier momento.
 
 ```kotlin
-package com.utng.runner.data
+package mx.edu.utng.arg.runner.data
 
 /**
  * GameState representa el estado completo del juego en cualquier momento.
- * 
+ *
  * ANALOGÍA: Es como el tablero de un juego de mesa.
  * Puedes ver todos los datos importantes de un vistazo:
  * - ¿Dónde está el jugador?
  * - ¿Dónde están los obstáculos?
  * - ¿Cuántos puntos llevas?
  * - ¿El juego está corriendo o terminó?
- * 
+ *
  * INMUTABILIDAD: Usamos 'data class' porque cada estado es como
  * una foto. No modificamos la foto, creamos una nueva foto con los cambios.
- * 
+ *
  * @property playerY Posición vertical del jugador (altura del salto)
  * @property obstacles Lista de todos los obstáculos en pantalla
  * @property score Puntuación actual del jugador
@@ -321,6 +345,7 @@ package com.utng.runner.data
  */
 data class GameState(
     val playerY: Float = 0f,           // 0f = en el suelo, >0 = en el aire
+    val playerVelocity: Float = 0f,  // ← NUEVO
     val obstacles: List<Obstacle> = emptyList(),
     val score: Int = 0,
     val isGameOver: Boolean = false,
@@ -330,36 +355,36 @@ data class GameState(
     companion object {
         /**
          * Altura máxima que puede alcanzar el jugador al saltar.
-         * 
+         *
          * ANALOGÍA: Es como la altura que puedes alcanzar al saltar
          * en la vida real. No puedes saltar hasta el techo, hay un límite.
          */
-        const val MAX_JUMP_HEIGHT = 200f
-        
+        const val MAX_JUMP_HEIGHT = 300f
+
         /**
          * Velocidad inicial de salto (pixeles por frame).
-         * 
+         *
          * CONCEPTO: Una velocidad negativa significa "hacia arriba" en pantalla.
          * En Android, Y=0 está arriba, y Y aumenta hacia abajo.
          */
-        const val JUMP_VELOCITY = -15f
-        
+        const val JUMP_VELOCITY = -22f
+
         /**
          * Gravedad aplicada al jugador (pixeles por frame).
-         * 
+         *
          * CONCEPTO: La gravedad es siempre positiva (tira hacia abajo).
          * Es la fuerza que te hace volver al suelo después de saltar.
          */
-        const val GRAVITY = 0.8f
+        const val GRAVITY = 0.9f
     }
 }
 
 /**
  * Obstacle representa un obstáculo individual en el juego.
- * 
+ *
  * ANALOGÍA: Es como una persona u objeto que te encuentras en tu camino.
  * Tiene una posición (dónde está) y un tipo (qué es).
- * 
+ *
  * @property x Posición horizontal del obstáculo (de derecha a izquierda)
  * @property type Tipo de obstáculo (JunkFood, Alcohol, o Drugs)
  */
@@ -373,7 +398,7 @@ data class Obstacle(
          * Usado para detectar colisiones.
          */
         const val WIDTH = 80f
-        
+
         /**
          * Alto visual del obstáculo en píxeles.
          * Usado para detectar colisiones.
@@ -381,6 +406,7 @@ data class Obstacle(
         const val HEIGHT = 80f
     }
 }
+
 ```
 
 **Explicación Detallada:**
@@ -433,29 +459,29 @@ Con `data class`:
 Este es el "cerebro" del juego. Aquí está toda la lógica.
 
 ```kotlin
-package com.utng.runner.domain
+package mx.edu.utng.arg.runner.domain
 
-import com.utng.runner.data.GameState
-import com.utng.runner.data.Obstacle
-import com.utng.runner.data.ObstacleType
+import mx.edu.utng.arg.runner.data.GameState
+import mx.edu.utng.arg.runner.data.Obstacle
+import mx.edu.utng.arg.runner.data.ObstacleType
 
 /**
  * GameEngine es el motor del juego, la lógica central.
- * 
+ *
  * ANALOGÍA: Es como el árbitro en un partido de fútbol.
  * El árbitro no juega, pero:
  * - Decide si hay falta (colisión)
  * - Cuenta los puntos
  * - Controla el tiempo
  * - Hace cumplir las reglas
- * 
+ *
  * RESPONSABILIDADES:
  * 1. Actualizar el estado del juego cada frame
  * 2. Detectar colisiones
  * 3. Generar obstáculos
  * 4. Calcular la física del salto
  * 5. Incrementar la puntuación
- * 
+ *
  * PRINCIPIO DE RESPONSABILIDAD ÚNICA:
  * Esta clase SOLO se encarga de la lógica del juego.
  * No sabe nada sobre la UI (botones, colores, etc.)
@@ -468,6 +494,8 @@ object GameEngine {
      */
     private const val SCREEN_WIDTH = 1080f
 
+    private const val COLLISION_PADDING = 15f
+
     /**
      * Distancia mínima entre obstáculos.
      * ANALOGÍA: Es como el espacio mínimo entre dos personas en una fila.
@@ -476,10 +504,10 @@ object GameEngine {
 
     /**
      * Actualiza el estado del juego en cada frame (fotograma).
-     * 
+     *
      * ANALOGÍA: Es como actualizar la posición de todas las piezas
      * en un juego de ajedrez después de cada turno.
-     * 
+     *
      * ¿QUÉ PASA EN CADA FRAME?
      * 1. Si el juego terminó, no hacemos nada
      * 2. Movemos los obstáculos hacia la izquierda
@@ -489,7 +517,7 @@ object GameEngine {
      * 6. Detectamos colisiones
      * 7. Incrementamos la puntuación
      * 8. Aumentamos la velocidad gradualmente
-     * 
+     *
      * @param currentState El estado actual del juego
      * @return Un nuevo estado del juego actualizado
      */
@@ -519,11 +547,11 @@ object GameEngine {
         }
 
         // Paso 4: Actualizar la física del jugador
-        val (newPlayerY, newIsJumping) = updatePlayerPhysics(
+        val (newPlayerY, newVelocity, newIsJumping) = updatePlayerPhysics(
             currentState.playerY,
+            currentState.playerVelocity,  // ← AGREGAR
             currentState.isJumping
         )
-
         // Paso 5: Detectar colisiones
         // CONCEPTO: Verificamos si algún obstáculo está tocando al jugador
         val collision = detectCollision(newPlayerY, obstacles)
@@ -541,6 +569,7 @@ object GameEngine {
         // INMUTABILIDAD: No modificamos currentState, creamos uno nuevo
         return currentState.copy(
             playerY = newPlayerY,
+            playerVelocity = newVelocity,
             obstacles = obstacles,
             score = newScore,
             isGameOver = collision,
@@ -551,10 +580,10 @@ object GameEngine {
 
     /**
      * Inicia un salto si el jugador está en el suelo.
-     * 
+     *
      * ANALOGÍA: Es como cuando flexionas las piernas para saltar.
      * Solo puedes saltar si estás en el suelo, no en el aire.
-     * 
+     *
      * @param currentState Estado actual del juego
      * @return Nuevo estado con el salto iniciado (o sin cambios si ya está saltando)
      */
@@ -563,18 +592,21 @@ object GameEngine {
         // 1. No estamos ya saltando
         // 2. El juego no ha terminado
         return if (!currentState.isJumping && !currentState.isGameOver) {
-            currentState.copy(isJumping = true)
+            currentState.copy(
+                isJumping = true,
+                playerVelocity = GameState.JUMP_VELOCITY  // ← AGREGAR ESTA LÍNEA
+            )
         } else {
-            currentState  // No hacemos nada si ya está saltando
+            currentState
         }
     }
 
     /**
      * Reinicia el juego al estado inicial.
-     * 
+     *
      * ANALOGÍA: Como reiniciar un juego de mesa,
      * volvemos todas las piezas a su posición inicial.
-     * 
+     *
      * @return Un nuevo GameState con valores iniciales
      */
     fun resetGame(): GameState {
@@ -583,74 +615,64 @@ object GameEngine {
 
     /**
      * Actualiza la física del jugador (gravedad y salto).
-     * 
+     *
      * FÍSICA DEL SALTO:
      * 1. Al saltar, el jugador tiene velocidad hacia arriba (negativa)
      * 2. La gravedad reduce esta velocidad gradualmente
      * 3. Eventualmente, la velocidad se vuelve positiva (cae)
      * 4. El jugador regresa al suelo (Y = 0)
-     * 
+     *
      * ANALOGÍA: Es como lanzar una pelota al aire:
      * - Sube rápido al principio
      * - Pierde velocidad
      * - Se detiene en el punto más alto
      * - Cae de vuelta
-     * 
+     *
      * @param currentY Posición Y actual del jugador
      * @param isJumping Si el jugador está saltando
      * @return Par de (nueva posición Y, si sigue saltando)
      */
+    // En GameEngine.kt - updatePlayerPhysics usa física correcta
     private fun updatePlayerPhysics(
         currentY: Float,
+        currentVelocity: Float,  // ← AGREGAR
         isJumping: Boolean
-    ): Pair<Float, Boolean> {
-        // Si no está saltando, mantiene la posición en el suelo
-        if (!isJumping) return Pair(0f, false)
+    ): Triple<Float, Float, Boolean>  // ← CAMBIAR Pair a Triple
 
-        // Calculamos la nueva velocidad aplicando gravedad
-        // velocity empieza en JUMP_VELOCITY (negativo, hacia arriba)
-        // gravity es positivo, reduce la velocidad hacia arriba
-        var velocity = GameState.JUMP_VELOCITY
-        var newY = currentY + velocity
+// REEMPLAZAR todo el cuerpo con (VERSIÓN CORREGIDA v1.2):
+    {
+        if (!isJumping) return Triple(0f, 0f, false)
 
-        // Aplicamos gravedad en cada iteración del salto
-        // CONCEPTO: La gravedad es acumulativa
-        velocity += GameState.GRAVITY
+        // Aplicar gravedad y velocidad
+        val newVelocity = currentVelocity + GameState.GRAVITY
+        val newY = currentY + newVelocity
 
-        // Si alcanzamos la altura máxima, empezamos a caer
+        // PRIMERO: Verificar si tocó el suelo
+        if (newY >= 0f) return Triple(0f, 0f, false)
+
+        // SEGUNDO: Límite superior - MANTENER velocidad (no resetear)
         if (newY < -GameState.MAX_JUMP_HEIGHT) {
-            newY = -GameState.MAX_JUMP_HEIGHT
-            velocity = 0f  // Detenemos la velocidad hacia arriba
+            // ✅ CORRECCIÓN v1.2: Mantener velocidad para caída natural
+            return Triple(-GameState.MAX_JUMP_HEIGHT, newVelocity, true)
         }
 
-        // Simulamos la caída aplicando gravedad
-        // CONCEPTO: Mientras estemos en el aire (newY < 0), seguimos aplicando física
-        while (newY < 0) {
-            velocity += GameState.GRAVITY
-            newY += velocity
-
-            // Si tocamos el suelo, terminamos el salto
-            if (newY >= 0) {
-                return Pair(0f, false)  // De vuelta al suelo
-            }
-        }
-
-        return Pair(newY, true)  // Seguimos en el aire
+        // Sigue en el aire normalmente
+        return Triple(newY, newVelocity, true)
     }
 
     /**
      * Detecta si hay colisión entre el jugador y algún obstáculo.
-     * 
+     *
      * CONCEPTO DE COLISIÓN:
      * Dos rectángulos chocan si sus áreas se superponen.
-     * 
+     *
      * ANALOGÍA: Es como saber si dos cajas se están tocando.
      * Si las esquinas de una caja están dentro de la otra caja, chocan.
-     * 
+     *
      * HITBOX DEL JUGADOR:
      * - X: 100 a 200 (ancho de 100px)
      * - Y: playerY a playerY + 100 (alto de 100px)
-     * 
+     *
      * @param playerY Posición Y del jugador
      * @param obstacles Lista de obstáculos a verificar
      * @return true si hay colisión, false si está seguro
@@ -660,8 +682,9 @@ object GameEngine {
         obstacles: List<Obstacle>
     ): Boolean {
         // Definimos la hitbox del jugador
-        val playerLeft = 100f
-        val playerRight = 200f
+        val padding = COLLISION_PADDING
+        val playerLeft = 100f + padding
+        val playerRight = 200f - padding
         val playerTop = playerY
         val playerBottom = playerY + 100f
 
@@ -680,22 +703,22 @@ object GameEngine {
             // 3. El fondo del jugador está abajo del tope del obstáculo
             // 4. El tope del jugador está arriba del fondo del obstáculo
             playerRight > obstacleLeft &&
-            playerLeft < obstacleRight &&
-            playerBottom > obstacleTop &&
-            playerTop < obstacleBottom
+                    playerLeft < obstacleRight &&
+                    playerBottom > obstacleTop &&
+                    playerTop < obstacleBottom
         }
     }
 
     /**
      * Determina si debemos generar un nuevo obstáculo.
-     * 
+     *
      * LÓGICA:
      * - Si no hay obstáculos, generamos uno
      * - Si el último obstáculo está suficientemente lejos, generamos otro
-     * 
+     *
      * ANALOGÍA: Es como poner más conos en una pista de obstáculos.
      * Solo pones uno nuevo cuando hay suficiente espacio.
-     * 
+     *
      * @param obstacles Lista actual de obstáculos
      * @return true si debemos crear un nuevo obstáculo
      */
@@ -711,7 +734,7 @@ object GameEngine {
 
     /**
      * Crea un nuevo obstáculo en el borde derecho de la pantalla.
-     * 
+     *
      * @return Un nuevo obstáculo con tipo aleatorio
      */
     private fun createNewObstacle(): Obstacle {
@@ -723,19 +746,19 @@ object GameEngine {
 
     /**
      * Calcula la velocidad del juego basada en la puntuación.
-     * 
+     *
      * CONCEPTO: Dificultad progresiva
      * Mientras más tiempo sobrevives, más rápido va el juego.
-     * 
+     *
      * FÓRMULA:
      * velocidad = velocidad_base + (puntos / 500) * 0.5
-     * 
+     *
      * EJEMPLO:
      * - 0 puntos: velocidad = 5.0
      * - 500 puntos: velocidad = 5.5
      * - 1000 puntos: velocidad = 6.0
      * - 2000 puntos: velocidad = 7.0
-     * 
+     *
      * @param score Puntuación actual
      * @return Nueva velocidad del juego
      */
@@ -774,17 +797,17 @@ Frame Y: velocity = +15, Y = 0 (de vuelta al suelo)
 
 ### 3️⃣ CAPA DE PRESENTACIÓN (Presentation Layer)
 
-#### 📄 `presentation/GameViewModel.kt`
+#### 📄 `ui/GameViewModel.kt`
 
 El ViewModel es el coordinador entre la lógica y la UI.
 
 ```kotlin
-package com.utng.runner.presentation
+package mx.edu.utng.arg.runner.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.utng.runner.data.GameState
-import com.utng.runner.domain.GameEngine
+import mx.edu.utng.arg.runner.data.GameState
+import mx.edu.utng.arg.runner.domain.GameEngine
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -793,23 +816,23 @@ import kotlinx.coroutines.launch
 
 /**
  * GameViewModel es el "controlador" de nuestro juego.
- * 
+ *
  * ANALOGÍA: Es como el director técnico de un equipo de fútbol.
  * - Los jugadores (Views) hacen lo que el director dice
  * - El director (ViewModel) toma decisiones basadas en las reglas (GameEngine)
  * - El director no juega, solo coordina
- * 
+ *
  * RESPONSABILIDADES:
  * 1. Mantener el estado del juego
  * 2. Actualizar el juego cada frame
  * 3. Responder a las acciones del usuario (toques)
  * 4. Coordinar con el GameEngine
- * 
+ *
  * MVVM (Model-View-ViewModel):
  * - Model: GameState, ObstacleType (datos)
  * - View: GameScreen, componentes UI (lo que ve el usuario)
  * - ViewModel: Esta clase (coordinador)
- * 
+ *
  * VENTAJAS:
  * - La UI puede cambiar sin afectar la lógica
  * - Podemos testear la lógica sin la UI
@@ -820,7 +843,7 @@ class GameViewModel : ViewModel() {
     /**
      * _gameState es el estado PRIVADO (mutable)
      * Solo el ViewModel puede modificarlo
-     * 
+     *
      * CONCEPTO: Principio de encapsulación
      * Nadie de afuera puede cambiar el estado directamente
      */
@@ -829,7 +852,7 @@ class GameViewModel : ViewModel() {
     /**
      * gameState es el estado PÚBLICO (inmutable)
      * La UI puede observarlo pero no modificarlo
-     * 
+     *
      * ANALOGÍA: Es como ver un partido por TV.
      * Puedes ver lo que pasa, pero no puedes cambiar el marcador.
      */
@@ -837,7 +860,7 @@ class GameViewModel : ViewModel() {
 
     /**
      * Frame rate del juego (60 FPS = 16.67ms por frame)
-     * 
+     *
      * CONCEPTO: FPS (Frames Per Second)
      * - 60 FPS = actualizamos 60 veces por segundo
      * - Cada actualización tarda ~16ms
@@ -852,10 +875,10 @@ class GameViewModel : ViewModel() {
 
     /**
      * Inicia el juego y el bucle de actualización.
-     * 
+     *
      * CONCEPTO: Game Loop (Bucle del Juego)
      * Es el corazón de cualquier videojuego.
-     * 
+     *
      * PSEUDOCÓDIGO:
      * ```
      * mientras juego_activo:
@@ -864,17 +887,17 @@ class GameViewModel : ViewModel() {
      *     renderizar()         // Dibujar en pantalla
      *     esperar(16ms)        // Mantener 60 FPS
      * ```
-     * 
+     *
      * ANALOGÍA: Es como el latido del corazón del juego.
      * Cada "latido" actualiza todo: enemigos, jugador, puntos.
      */
     fun startGame() {
         // Reiniciamos el estado
         _gameState.value = GameEngine.resetGame()
-        
+
         // Si ya hay un bucle corriendo, no iniciamos otro
         if (isGameLoopRunning) return
-        
+
         isGameLoopRunning = true
 
         // viewModelScope: Coroutine que se cancela automáticamente
@@ -884,7 +907,7 @@ class GameViewModel : ViewModel() {
             while (isGameLoopRunning && !_gameState.value.isGameOver) {
                 // Actualizamos el estado usando el GameEngine
                 _gameState.value = GameEngine.updateGameState(_gameState.value)
-                
+
                 // Esperamos 16ms para mantener 60 FPS
                 // CONCEPTO: Frame pacing - mantener velocidad constante
                 delay(frameDelayMillis)
@@ -896,14 +919,14 @@ class GameViewModel : ViewModel() {
 
     /**
      * Maneja el salto del jugador.
-     * 
+     *
      * FLUJO:
      * 1. Usuario toca la pantalla
      * 2. La UI llama a este método
      * 3. Le pedimos al GameEngine que haga saltar al jugador
      * 4. Actualizamos el estado
      * 5. La UI reacciona automáticamente al cambio
-     * 
+     *
      * CONCEPTO: Flujo unidireccional de datos
      * User Action → ViewModel → GameEngine → New State → UI Update
      */
@@ -913,7 +936,7 @@ class GameViewModel : ViewModel() {
 
     /**
      * Reinicia el juego cuando el usuario presiona "Reintentar".
-     * 
+     *
      * Similar a startGame() pero puede llamarse después de un Game Over
      */
     fun restartGame() {
@@ -922,10 +945,10 @@ class GameViewModel : ViewModel() {
 
     /**
      * Limpia recursos cuando el ViewModel es destruido.
-     * 
+     *
      * CONCEPTO: Lifecycle management
      * Es importante detener el bucle para no desperdiciar recursos.
-     * 
+     *
      * ANALOGÍA: Es como apagar las luces cuando sales de una habitación.
      */
     override fun onCleared() {
@@ -971,12 +994,12 @@ Sin coroutines, el juego "congelaría" la pantalla mientras actualiza.
 
 ---
 
-#### 📄 `presentation/components/GameScreen.kt`
+#### 📄 `ui/components/GameScreen.kt`
 
 La pantalla principal del juego.
 
 ```kotlin
-package com.utng.runner.presentation.components
+package mx.edu.utng.arg.runner.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -993,41 +1016,41 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.utng.runner.presentation.GameViewModel
+import mx.edu.utng.arg.runner.ui.GameViewModel
 
 /**
  * GameScreen es la pantalla principal donde se juega.
- * 
+ *
  * COMPOSABLE: Una función que describe UI
  * - Recibe datos (parámetros)
  * - Devuelve UI (no explícitamente, sino por composición)
  * - Se recompone (redibuja) cuando los datos cambian
- * 
+ *
  * ANALOGÍA: Es como una receta de cocina.
  * Cada vez que la ejecutas con los mismos ingredientes (parámetros),
  * obtienes el mismo plato (UI).
- * 
+ *
  * @param viewModel El ViewModel que controla la lógica
  */
 @Composable
 fun GameScreen(viewModel: GameViewModel) {
-    
+
     /**
      * Observamos el estado del juego.
-     * 
+     *
      * CONCEPTO: Reactive Programming
      * Cuando gameState cambia, este Composable se "recompone" (redibuja)
-     * 
+     *
      * collectAsState() convierte el Flow en un State observable por Compose
      */
     val gameState by viewModel.gameState.collectAsState()
 
     /**
      * LaunchedEffect inicia el juego solo una vez.
-     * 
+     *
      * CONCEPTO: Side Effect
      * Es una acción que ocurre "al lado" de la UI, no es UI en sí.
-     * 
+     *
      * La key "game_start" asegura que solo se ejecute una vez
      * (no cada vez que se recompone)
      */
@@ -1037,10 +1060,10 @@ fun GameScreen(viewModel: GameViewModel) {
 
     /**
      * Box es un contenedor que apila elementos uno sobre otro.
-     * 
+     *
      * ANALOGÍA: Como apilar papeles sobre un escritorio.
      * El último elemento dibujado está arriba de todos.
-     * 
+     *
      * ESTRUCTURA:
      * - Fondo (cielo azul)
      * - Suelo (línea verde)
@@ -1060,11 +1083,11 @@ fun GameScreen(viewModel: GameViewModel) {
                 }
             }
     ) {
-        
+
         // SUELO: Línea verde en la parte inferior
         /**
          * Box con color verde que representa el suelo.
-         * 
+         *
          * CONCEPTO: Layout positioning
          * - fillMaxWidth() = ocupa todo el ancho
          * - height(8.dp) = 8 píxeles de alto
@@ -1081,7 +1104,7 @@ fun GameScreen(viewModel: GameViewModel) {
         // JUGADOR: Nuestro personaje (alumno UTNG)
         /**
          * PlayerCharacter se posiciona dinámicamente según gameState.playerY
-         * 
+         *
          * CONCEPTO: Data-driven UI
          * La posición del jugador viene del estado, no de animaciones manuales
          */
@@ -1093,7 +1116,7 @@ fun GameScreen(viewModel: GameViewModel) {
         // OBSTÁCULOS: Dibujamos cada obstáculo de la lista
         /**
          * Iteramos sobre todos los obstáculos y los dibujamos.
-         * 
+         *
          * CONCEPTO: List rendering
          * Cada obstáculo es independiente pero comparte la misma lógica de dibujo
          */
@@ -1107,10 +1130,10 @@ fun GameScreen(viewModel: GameViewModel) {
         // HUD: Heads-Up Display (información en pantalla)
         /**
          * Mostramos la puntuación en la esquina superior derecha.
-         * 
+         *
          * CONCEPTO: HUD (Heads-Up Display)
          * Información que siempre está visible sobre el juego
-         * 
+         *
          * ANALOGÍA: Como el velocímetro en un coche.
          * Siempre visible pero no interfiere con la carretera.
          */
@@ -1150,7 +1173,7 @@ fun GameScreen(viewModel: GameViewModel) {
         // GAME OVER DIALOG
         /**
          * Si el juego terminó, mostramos el diálogo de Game Over.
-         * 
+         *
          * CONCEPTO: Conditional rendering
          * Solo dibujamos el diálogo si isGameOver es true
          */
@@ -1162,6 +1185,7 @@ fun GameScreen(viewModel: GameViewModel) {
         }
     }
 }
+
 ```
 
 **Explicación Detallada:**
@@ -1198,7 +1222,7 @@ Es como actualizar una pizarra. Si cambias un número, no borras todo y reescrib
 El personaje jugador.
 
 ```kotlin
-package com.utng.runner.presentation.components
+package mx.edu.utng.arg.runner.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -1212,19 +1236,19 @@ import androidx.compose.ui.unit.sp
 
 /**
  * PlayerCharacter dibuja el alumno UTNG (nuestro personaje).
- * 
+ *
  * DISEÑO:
  * - Emoji: 🧑‍🎓 (estudiante)
  * - Tamaño: 100x100 dp
  * - Posición base: 100dp desde la izquierda, en el suelo
  * - Movimiento: Solo en Y (arriba/abajo al saltar)
- * 
+ *
  * CONCEPTO: Stateless Composable
  * Este componente NO tiene estado propio.
  * Solo recibe datos (yOffset) y los muestra.
- * 
+ *
  * VENTAJA: Fácil de testear y reutilizar.
- * 
+ *
  * @param modifier Modificador de Compose para customización
  * @param yOffset Desplazamiento vertical (negativo = arriba)
  */
@@ -1235,12 +1259,12 @@ fun PlayerCharacter(
 ) {
     /**
      * Box posiciona el emoji del jugador.
-     * 
+     *
      * EXPLICACIÓN DE OFFSET:
      * - offset(x, y) mueve el componente desde su posición original
      * - 100.dp en X = posición fija desde la izquierda
      * - yOffset.dp en Y = se mueve según el salto
-     * 
+     *
      * EJEMPLO:
      * - yOffset = 0: En el suelo
      * - yOffset = -100: 100dp arriba (saltando)
@@ -1254,7 +1278,7 @@ fun PlayerCharacter(
     ) {
         /**
          * El emoji representa al estudiante de UTNG.
-         * 
+         *
          * PERSONALIZACIÓN: Puedes cambiar el emoji por:
          * - 👨‍🎓 (estudiante hombre)
          * - 👩‍🎓 (estudiante mujer)
@@ -1267,6 +1291,7 @@ fun PlayerCharacter(
         )
     }
 }
+
 ```
 
 **Explicación Detallada:**
@@ -1300,12 +1325,12 @@ Saltando (yOffset = -100):
 
 ---
 
-#### 📄 `presentation/components/Obstacle.kt`
+#### 📄 `ui/components/Obstacle.kt`
 
 Los obstáculos (malos hábitos).
 
 ```kotlin
-package com.utng.runner.presentation.components
+package mx.edu.utng.arg.runner.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -1314,18 +1339,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.utng.runner.data.Obstacle
+import mx.edu.utng.arg.runner.data.Obstacle
 
 /**
  * ObstacleComponent dibuja un obstáculo individual.
- * 
+ *
  * CONCEPTO: Component reusability
  * Este componente se reutiliza para TODOS los obstáculos.
  * Solo cambia su posición y emoji según el tipo.
- * 
+ *
  * ANALOGÍA: Es como una plantilla para estampas.
  * La plantilla es la misma, pero cada estampa puede tener diferente color/diseño.
- * 
+ *
  * @param obstacle El obstáculo a dibujar (contiene posición y tipo)
  * @param modifier Modificador de Compose
  */
@@ -1337,10 +1362,10 @@ fun ObstacleComponent(
     /**
      * Column apila elementos verticalmente.
      * Aquí apilamos el emoji y el texto descriptivo.
-     * 
+     *
      * ESTRUCTURA:
      * ┌─────────┐
-     * │  emoji  │  ← 🍔 o 🍺 o 💊
+     * │  emoji  │  ← 🍔 o 🍺 o 💊 o 🚬
      * │  texto  │  ← "Comida Chatarra"
      * └─────────┘
      */
@@ -1364,7 +1389,7 @@ fun ObstacleComponent(
             text = obstacle.type.emoji,
             fontSize = 50.sp
         )
-        
+
         /**
          * Nombre del obstáculo en texto pequeño.
          * Ayuda a identificar qué tipo de mal hábito es.
@@ -1375,6 +1400,7 @@ fun ObstacleComponent(
         )
     }
 }
+
 ```
 
 **Explicación Detallada:**
@@ -1407,12 +1433,12 @@ Frame N: x = -100 (salió por la izquierda)
 
 ---
 
-#### 📄 `presentation/components/GameOverDialog.kt`
+#### 📄 `ui/components/GameOverDialog.kt`
 
 El diálogo cuando pierdes.
 
 ```kotlin
-package com.utng.runner.presentation.components
+package mx.edu.utng.arg.runner.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -1432,20 +1458,20 @@ import androidx.compose.ui.window.Dialog
 
 /**
  * GameOverDialog muestra el diálogo cuando el jugador pierde.
- * 
+ *
  * CONCEPTO: Modal Dialog
  * Es una ventana que aparece sobre el juego y bloquea la interacción
  * hasta que el usuario tome una decisión.
- * 
+ *
  * ANALOGÍA: Como una alerta en tu teléfono.
  * No puedes hacer nada más hasta que la cierres o respondas.
- * 
+ *
  * CONTENIDO:
  * - Título "Game Over"
  * - Mensaje motivacional
  * - Puntuación final
  * - Botón para reiniciar
- * 
+ *
  * @param score Puntuación final del jugador
  * @param onRestart Callback que se ejecuta al presionar "Reintentar"
  */
@@ -1456,7 +1482,7 @@ fun GameOverDialog(
 ) {
     /**
      * Dialog es un componente de Material Design.
-     * 
+     *
      * PROPIEDADES:
      * - onDismissRequest: Qué hacer al tocar fuera del diálogo
      *   (aquí lo dejamos vacío para que NO se pueda cerrar sin reiniciar)
@@ -1464,7 +1490,7 @@ fun GameOverDialog(
     Dialog(onDismissRequest = { /* No permitimos cerrar sin reiniciar */ }) {
         /**
          * Card personalizado para el contenido del diálogo.
-         * 
+         *
          * DISEÑO:
          * - Fondo blanco
          * - Bordes redondeados
@@ -1486,7 +1512,7 @@ fun GameOverDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)  // Espacio entre elementos
             ) {
-                
+
                 // TÍTULO "GAME OVER"
                 Text(
                     text = "¡Game Over!",
@@ -1504,7 +1530,7 @@ fun GameOverDialog(
                 // MENSAJE MOTIVACIONAL
                 /**
                  * Mensaje que relaciona el juego con la vida real.
-                 * 
+                 *
                  * OBJETIVO EDUCATIVO:
                  * Reforzar el mensaje de tomar decisiones saludables.
                  */
@@ -1518,7 +1544,7 @@ fun GameOverDialog(
                 // PUNTUACIÓN FINAL
                 /**
                  * Mostramos los puntos obtenidos.
-                 * 
+                 *
                  * GAMIFICACIÓN:
                  * Ver tu puntuación motiva a intentar superarla en el siguiente intento.
                  */
@@ -1541,7 +1567,7 @@ fun GameOverDialog(
                 // CONSEJOS DE SALUD
                 /**
                  * Mensaje educativo sobre hábitos saludables.
-                 * 
+                 *
                  * PROPÓSITO:
                  * Aprovechar el "momento de reflexión" del Game Over
                  * para reforzar el aprendizaje.
@@ -1558,7 +1584,7 @@ fun GameOverDialog(
                 // BOTÓN REINTENTAR
                 /**
                  * Button es el componente de Material Design para botones.
-                 * 
+                 *
                  * CALLBACK: onRestart es una función que se pasa como parámetro.
                  * Cuando el usuario presiona el botón, se ejecuta esta función.
                  */
@@ -1581,6 +1607,7 @@ fun GameOverDialog(
         }
     }
 }
+
 ```
 
 **Explicación Detallada:**
@@ -1615,7 +1642,7 @@ La nota (callback) dice qué hacer, pero no lo hace hasta que llegue el momento.
 El punto de entrada de la aplicación.
 
 ```kotlin
-package com.utng.runner
+package mx.edu.utng.arg.runner
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -1626,53 +1653,53 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.utng.runner.presentation.GameScreen
-import com.utng.runner.presentation.GameViewModel
+import mx.edu.utng.arg.runner.ui.components.GameScreen
+import mx.edu.utng.arg.runner.ui.GameViewModel
 
 /**
  * MainActivity es la actividad principal de la aplicación.
- * 
+ *
  * CONCEPTO: Activity
  * Una Activity es una pantalla en Android.
  * Es el punto de entrada de tu app.
- * 
+ *
  * ANALOGÍA: Es como la puerta principal de una casa.
  * Todo el que entra a tu app, entra por aquí.
- * 
+ *
  * ComponentActivity es la clase base para apps con Jetpack Compose.
  */
 class MainActivity : ComponentActivity() {
-    
+
     /**
      * onCreate es el método que se ejecuta cuando la actividad se crea.
-     * 
+     *
      * CICLO DE VIDA:
      * onCreate() → onStart() → onResume() → (App corriendo)
-     * 
+     *
      * ANALOGÍA: Es como llegar a una fiesta.
      * - onCreate: Entras y te presentas
      * - onStart: Te quitas el abrigo
      * - onResume: Empiezas a socializar
-     * 
+     *
      * @param savedInstanceState Estado guardado de ejecuciones anteriores
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         /**
          * enableEdgeToEdge permite usar toda la pantalla,
          * incluyendo las barras de sistema (status bar, navigation bar).
-         * 
+         *
          * EFECTO: La app se ve moderna y "full screen"
          */
         enableEdgeToEdge()
-        
+
         /**
          * setContent define el contenido UI de la Activity.
-         * 
+         *
          * CONCEPTO: Compose UI
          * En lugar de usar XML (activity_main.xml), definimos la UI con código.
-         * 
+         *
          * VENTAJA:
          * - Más fácil de modificar
          * - Menos archivos que mantener
@@ -1681,17 +1708,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             /**
              * MaterialTheme aplica el diseño Material Design 3.
-             * 
+             *
              * Material Design es el sistema de diseño de Google.
              * Define colores, formas, tipografías consistentes.
-             * 
+             *
              * ANALOGÍA: Es como usar una plantilla de diseño profesional
              * en PowerPoint. Todo se ve coherente automáticamente.
              */
             MaterialTheme {
                 /**
                  * Surface es un contenedor básico con color de fondo.
-                 * 
+                 *
                  * PROPÓSITO:
                  * Proporciona un fondo coherente con el tema de Material
                  */
@@ -1701,20 +1728,20 @@ class MainActivity : ComponentActivity() {
                 ) {
                     /**
                      * viewModel() crea o recupera el ViewModel.
-                     * 
+                     *
                      * CONCEPTO: ViewModel Lifecycle
                      * El ViewModel sobrevive a rotaciones de pantalla.
-                     * 
+                     *
                      * EJEMPLO:
                      * 1. Usuario está jugando (puntaje = 500)
                      * 2. Usuario rota el teléfono
                      * 3. Activity se destruye y recrea
                      * 4. ViewModel sigue vivo con puntaje = 500
-                     * 
+                     *
                      * Sin ViewModel, perderías el progreso al rotar.
                      */
                     val viewModel: GameViewModel = viewModel()
-                    
+
                     /**
                      * GameScreen es nuestra pantalla de juego.
                      * Le pasamos el ViewModel para que pueda controlar el juego.
@@ -1725,6 +1752,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 ```
 
 **Explicación Detallada:**
