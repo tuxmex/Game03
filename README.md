@@ -133,7 +133,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ```
 
-### 1. Archivo `build.gradle.kts` (Module: app)
+### 2. Archivo `build.gradle.kts` (Module: app)
 
 Este archivo es como la lista de materiales para construir una casa.
 
